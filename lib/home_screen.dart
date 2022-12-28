@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:scratcher/widgets.dart';
-import 'package:snehal_pt/card_screen.dart';
 import 'const.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -8,13 +7,12 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-
 TextEditingController _numberController = TextEditingController();
 
 class _HomeScreenState extends State<HomeScreen> {
-
   final _formKey = GlobalKey<FormState>();
   int rewardValue = 0;
+
   @override
   Widget build(BuildContext context) {
     // G.D used for control keyboard focus/unfocused....
@@ -27,29 +25,27 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-         // backgroundColor: Colors.deepOrange,
+          // backgroundColor: Colors.deepOrange,
           backgroundColor: primaryColor,
-          title: const Text('Provider Practice'),
+          title: const Text('ScratchCard App'),
           centerTitle: true,
           actions: [
-             Padding(
-               padding: const EdgeInsets.only(right: 10),
-               child: Icon(Icons.more_vert),
-             )
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: Icon(Icons.more_vert),
+            )
           ],
         ),
         body: Form(
           key: _formKey,
           child: Column(
-            // mainAxisAlignment: MainAxisAlignment.center,
-            // crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: TextFormField(
                   controller: _numberController,
-                  validator: (value){
-                    if(value!.isEmpty){
+                  validator: (value) {
+                    if (value!.isEmpty) {
                       return "Please choose a number";
                     }
                   },
@@ -74,10 +70,11 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: primaryColor),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                     // Navigator.push(context, MaterialPageRoute(builder: (_)=> CardScreen()));
+                      // Navigator.push(context, MaterialPageRoute(builder: (_)=> CardScreen()));
                     }
                   },
                   child: const Text("Try Your LUCK"),
@@ -91,11 +88,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),
-                  itemCount: 1000,
+                  itemCount: 100,
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () {
-                        if (index % 4 == 0 || index % 4 == 3 || index % 4 == 4) {
+                        if (index % 4 == 0 ||
+                            index % 4 == 3 ||
+                            index % 4 == 4) {
                           rewardValue = 10;
                         } else {
                           rewardValue = 15;
@@ -121,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
   scratchDialog(BuildContext context) {
     return showDialog(
       context: context,
@@ -160,9 +160,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     'https://play-lh.googleusercontent.com/qA-pHFA3aulBAf6sxex7XuiOwb5KQMtA_tbmPXy526p9TxIzFIqeabAr8UC3aGDUsng=w240-h480-rw',
                   ),
                   child: SizedBox(
-                    //color: Colors.amberAccent,
-                    height: 180,
-                    width: 250,
+                    height: MediaQuery.of(context).size.height * 0.22,
+                    width: MediaQuery.of(context).size.width * 0.55,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -189,4 +188,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
