@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:scratcher/widgets.dart';
 import 'const.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -12,6 +15,22 @@ TextEditingController _numberController = TextEditingController();
 class _HomeScreenState extends State<HomeScreen> {
   final _formKey = GlobalKey<FormState>();
   int rewardValue = 0;
+
+  bool isLoading = false;
+  bool isVisible = false;
+
+  updateIsLoading(bool value) {
+    setState(
+      () {
+        isLoading = value;
+      });
+  }
+
+  updateIsVisible(bool value) {
+    setState(() {
+      isVisible = value;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,13 +44,12 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          // backgroundColor: Colors.deepOrange,
           backgroundColor: primaryColor,
           title: const Text('ScratchCard App'),
           centerTitle: true,
-          actions: [
+          actions: const [
             Padding(
-              padding: const EdgeInsets.only(right: 10),
+              padding: EdgeInsets.only(right: 10),
               child: Icon(Icons.more_vert),
             )
           ],
@@ -43,25 +61,27 @@ class _HomeScreenState extends State<HomeScreen> {
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: TextFormField(
-                  controller: _numberController,
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "Please choose a number";
                     }
                   },
+                  controller: _numberController,
                   cursorColor: primaryColor,
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[0-9]"))],
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: primaryColor, width: 2.0),
+                      borderSide:
+                          const BorderSide(color: primaryColor, width: 2.0),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
+                      borderSide: const BorderSide(color: Colors.black),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     hintText: "Choose No...",
                   ),
@@ -74,46 +94,65 @@ class _HomeScreenState extends State<HomeScreen> {
                       ElevatedButton.styleFrom(backgroundColor: primaryColor),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      // Navigator.push(context, MaterialPageRoute(builder: (_)=> CardScreen()));
+                      if (_numberController.text.isNotEmpty) {
+                        updateIsLoading(true);
+                        _numberController.clear();
+                        Future.delayed(
+                          const Duration(seconds: 1),
+                          () {
+                            updateIsLoading(false);
+                            updateIsVisible(true);
+                          },
+                        );
+                      }
+                      _numberController.clear();
+                      SystemChannels.textInput.invokeMethod('TextInput.hide');
                     }
                   },
                   child: const Text("Try Your LUCK"),
                 ),
               ),
-              Expanded(
-                child: GridView.builder(
-                  padding: const EdgeInsets.only(left: 12, right: 12, top: 12),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                  ),
-                  itemCount: 100,
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        if (index % 4 == 0 ||
-                            index % 4 == 3 ||
-                            index % 4 == 4) {
-                          rewardValue = 10;
-                        } else {
-                          rewardValue = 15;
-                        }
-                        scratchDialog(context);
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Center(
-                          child: Image.network(
-                              'https://play-lh.googleusercontent.com/qA-pHFA3aulBAf6sxex7XuiOwb5KQMtA_tbmPXy526p9TxIzFIqeabAr8UC3aGDUsng=w240-h480-rw'),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              )
+              isLoading
+                  ? const Expanded(
+                      child: Center(child: CircularProgressIndicator(color: primaryColor)))
+                  : isVisible
+                      ? Expanded(
+                          child: GridView.builder(
+                            padding: const EdgeInsets.only(
+                                left: 12, right: 12, top: 12),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 12,
+                              mainAxisSpacing: 12,
+                            ),
+                            itemCount: 50,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () {
+                                  if (index % 4 == 0 ||
+                                      index % 4 == 3 ||
+                                      index % 4 == 4) {
+                                    rewardValue = 10;
+                                  } else {
+                                    rewardValue = 15;
+                                  }
+                                  scratchDialog(context);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Center(
+                                    child: Image.network(
+                                        'https://play-lh.googleusercontent.com/qA-pHFA3aulBAf6sxex7XuiOwb5KQMtA_tbmPXy526p9TxIzFIqeabAr8UC3aGDUsng=w240-h480-rw'),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        )
+                      : const Offstage()
             ],
           ),
         ),
@@ -121,6 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // create a function for show dialog for scratch card....
   scratchDialog(BuildContext context) {
     return showDialog(
       context: context,
@@ -173,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          '${rewardValue} RS/-',
+                          '$rewardValue RS/-',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
